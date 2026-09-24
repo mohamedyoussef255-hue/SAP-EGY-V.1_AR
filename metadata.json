@@ -1,0 +1,6 @@
+{
+  "name": "Minhaj Cloud ERP - Multi-Tenant Architecture & Dynamic Engine",
+  "description": "Enterprise multi-tenant ERP platform architecture with dynamic JSONB form engine, module subscription toggles, workflow automation, and real-time executive dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
