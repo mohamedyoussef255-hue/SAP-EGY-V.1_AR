@@ -2,6 +2,30 @@ export type ModuleType = 'hr' | 'finance' | 'operations' | 'tasks' | 'analytics'
 
 export type PlanTier = 'freemium' | 'growth' | 'enterprise';
 
+export type DeploymentMode = 'CLOUD' | 'ON_PREMISE';
+
+export interface OnPremiseLicense {
+  licenseKey: string;
+  licensedTo: string;
+  edition: 'Enterprise On-Premise' | 'Standard On-Premise';
+  issuedAt: string;
+  expiresAt: string;
+  maxUsers: number;
+  serverFingerprint: string;
+  signature: string;
+  enabledModules: Record<ModuleType, boolean>;
+  isValid: boolean;
+  isExpired: boolean;
+}
+
+export interface SystemDeploymentConfig {
+  mode: DeploymentMode;
+  localTenantId: string;
+  serverHost: string;
+  postgresHost: string;
+  license: OnPremiseLicense;
+}
+
 export interface Tenant {
   id: string;
   name: string;

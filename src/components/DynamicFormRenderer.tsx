@@ -7,12 +7,13 @@ import {
 import {
   AlertCircle,
   CheckCircle2,
-  Calendar,
   DollarSign,
   HelpCircle,
   Save,
   RotateCcw,
   Sparkles,
+  Eye,
+  Lock,
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -22,6 +23,7 @@ interface DynamicFormRendererProps {
   tenantId: string;
   currentUserId?: string;
   currentUserName?: string;
+  isPreviewMode?: boolean;
   onSubmitSuccess?: (record: EntityRecord) => void;
   onCancel?: () => void;
 }
@@ -32,6 +34,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
   tenantId,
   currentUserId = 'u-current',
   currentUserName = 'System User',
+  isPreviewMode = false,
   onSubmitSuccess,
   onCancel,
 }) => {
@@ -147,6 +150,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
   // Submit Handler: Saves to PostgreSQL JSONB format
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPreviewMode) return;
     if (!validateForm()) {
       setSubmitFeedback({
         type: 'error',
@@ -209,15 +213,29 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
     const value = formData[field.name] ?? '';
     const error = errors[field.name];
     const isColSpan2 = field.colSpan === 2;
-
     const wrapperClass = `flex flex-col gap-1.5 ${isColSpan2 ? 'md:col-span-2' : 'col-span-1'}`;
+
+    const inputBaseClass = `w-full px-3.5 py-2.5 rounded-lg text-sm transition-colors ${
+      isPreviewMode
+        ? 'bg-slate-100/90 text-slate-700 border border-slate-200 cursor-default focus:outline-none'
+        : `bg-slate-50 border text-slate-900 focus:bg-white focus:outline-none focus:ring-2 ${
+            error
+              ? 'border-rose-300 focus:ring-rose-500/20 border-rose-500'
+              : 'border-slate-300 focus:border-indigo-600 focus:ring-indigo-500/20'
+          }`
+    }`;
 
     return (
       <div key={field.id} className={wrapperClass}>
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
             {field.label}
-            {field.required && <span className="text-rose-500 font-bold">*</span>}
+            {field.required && !isPreviewMode && <span className="text-rose-500 font-bold">*</span>}
+            {isPreviewMode && (
+              <span className="text-[10px] text-slate-400 font-normal uppercase">
+                ({isRtl ? 'للعرض' : 'read-only'})
+              </span>
+            )}
           </label>
           {field.tooltip && (
             <div className="group relative flex items-center cursor-pointer">
@@ -236,14 +254,12 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
               return (
                 <input
                   type="text"
+                  readOnly={isPreviewMode}
+                  disabled={isPreviewMode}
                   value={value}
                   placeholder={field.placeholder || ''}
-                  onChange={(e) => handleChange(field.name, e.target.value)}
-                  className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-900 transition-colors focus:bg-white focus:outline-none focus:ring-2 ${
-                    error
-                      ? 'border-rose-300 focus:ring-rose-500/20 border-rose-500'
-                      : 'border-slate-300 focus:border-indigo-600 focus:ring-indigo-500/20'
-                  }`}
+                  onChange={(e) => !isPreviewMode && handleChange(field.name, e.target.value)}
+                  className={inputBaseClass}
                 />
               );
 
@@ -251,16 +267,14 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
               return (
                 <input
                   type="number"
+                  readOnly={isPreviewMode}
+                  disabled={isPreviewMode}
                   value={value}
                   placeholder={field.placeholder || '0'}
                   min={field.validation?.min}
                   max={field.validation?.max}
-                  onChange={(e) => handleChange(field.name, e.target.value)}
-                  className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-900 transition-colors focus:bg-white focus:outline-none focus:ring-2 ${
-                    error
-                      ? 'border-rose-300 focus:ring-rose-500/20 border-rose-500'
-                      : 'border-slate-300 focus:border-indigo-600 focus:ring-indigo-500/20'
-                  }`}
+                  onChange={(e) => !isPreviewMode && handleChange(field.name, e.target.value)}
+                  className={inputBaseClass}
                 />
               );
 
@@ -273,14 +287,12 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
                   <input
                     type="number"
                     step="0.01"
+                    readOnly={isPreviewMode}
+                    disabled={isPreviewMode}
                     value={value}
                     placeholder={field.placeholder || '0.00'}
-                    onChange={(e) => handleChange(field.name, e.target.value)}
-                    className={`w-full ${isRtl ? 'pr-9 pl-3.5' : 'pl-9 pr-3.5'} py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-900 transition-colors focus:bg-white focus:outline-none focus:ring-2 ${
-                      error
-                        ? 'border-rose-300 focus:ring-rose-500/20 border-rose-500'
-                        : 'border-slate-300 focus:border-indigo-600 focus:ring-indigo-500/20'
-                    }`}
+                    onChange={(e) => !isPreviewMode && handleChange(field.name, e.target.value)}
+                    className={`${inputBaseClass} ${isRtl ? 'pr-9 pl-3.5' : 'pl-9 pr-3.5'}`}
                   />
                 </div>
               );
@@ -290,13 +302,11 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
                 <div className="relative">
                   <input
                     type="date"
+                    readOnly={isPreviewMode}
+                    disabled={isPreviewMode}
                     value={value}
-                    onChange={(e) => handleChange(field.name, e.target.value)}
-                    className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-900 transition-colors focus:bg-white focus:outline-none focus:ring-2 ${
-                      error
-                        ? 'border-rose-300 focus:ring-rose-500/20 border-rose-500'
-                        : 'border-slate-300 focus:border-indigo-600 focus:ring-indigo-500/20'
-                    }`}
+                    onChange={(e) => !isPreviewMode && handleChange(field.name, e.target.value)}
+                    className={inputBaseClass}
                   />
                 </div>
               );
@@ -305,12 +315,13 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
               const options = field.options || asyncOptions[field.name] || [];
               return (
                 <select
+                  disabled={isPreviewMode}
                   value={value}
-                  onChange={(e) => handleChange(field.name, e.target.value)}
-                  className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-900 transition-colors focus:bg-white focus:outline-none focus:ring-2 cursor-pointer ${
-                    error
-                      ? 'border-rose-300 focus:ring-rose-500/20 border-rose-500'
-                      : 'border-slate-300 focus:border-indigo-600 focus:ring-indigo-500/20'
+                  onChange={(e) => !isPreviewMode && handleChange(field.name, e.target.value)}
+                  className={`w-full px-3.5 py-2.5 rounded-lg text-sm transition-colors ${
+                    isPreviewMode
+                      ? 'bg-slate-100/90 text-slate-700 border border-slate-200 cursor-default focus:outline-none'
+                      : 'bg-slate-50 border border-slate-300 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 cursor-pointer'
                   }`}
                 >
                   <option value="">{t.selectOptionDefault}</option>
@@ -325,11 +336,16 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 
             case 'boolean':
               return (
-                <label className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                <label className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${
+                  isPreviewMode
+                    ? 'bg-slate-100/80 border-slate-200 cursor-default'
+                    : 'bg-slate-50 border-slate-200 cursor-pointer hover:bg-slate-100'
+                }`}>
                   <input
                     type="checkbox"
+                    disabled={isPreviewMode}
                     checked={Boolean(value)}
-                    onChange={(e) => handleChange(field.name, e.target.checked)}
+                    onChange={(e) => !isPreviewMode && handleChange(field.name, e.target.checked)}
                     className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
                   />
                   <span className="text-sm text-slate-700 font-medium">
@@ -342,14 +358,12 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
               return (
                 <textarea
                   rows={3}
+                  readOnly={isPreviewMode}
+                  disabled={isPreviewMode}
                   value={value}
                   placeholder={field.placeholder || ''}
-                  onChange={(e) => handleChange(field.name, e.target.value)}
-                  className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-900 transition-colors focus:bg-white focus:outline-none focus:ring-2 ${
-                    error
-                      ? 'border-rose-300 focus:ring-rose-500/20 border-rose-500'
-                      : 'border-slate-300 focus:border-indigo-600 focus:ring-indigo-500/20'
-                  }`}
+                  onChange={(e) => !isPreviewMode && handleChange(field.name, e.target.value)}
+                  className={inputBaseClass}
                 />
               );
 
@@ -357,15 +371,17 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
               return (
                 <input
                   type="text"
+                  readOnly={isPreviewMode}
+                  disabled={isPreviewMode}
                   value={value}
-                  onChange={(e) => handleChange(field.name, e.target.value)}
-                  className="w-full px-3.5 py-2.5 border rounded-lg text-sm"
+                  onChange={(e) => !isPreviewMode && handleChange(field.name, e.target.value)}
+                  className={inputBaseClass}
                 />
               );
           }
         })()}
 
-        {error && (
+        {error && !isPreviewMode && (
           <p className="text-xs text-rose-600 flex items-center gap-1 mt-0.5">
             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             {error}
@@ -431,56 +447,72 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 
         {/* Action Buttons */}
         <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => {
-              const reset: Record<string, any> = {};
-              template.fields.forEach((f) => (reset[f.name] = f.defaultValue ?? ''));
-              setFormData(reset);
-              setErrors({});
-              setSubmitFeedback(null);
-            }}
-            className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5"
-          >
-            <RotateCcw className="w-4 h-4" />
-            {t.resetForm}
-          </button>
-
-          <div className="flex items-center gap-3">
-            {onCancel && (
+          {isPreviewMode ? (
+            <div className="flex flex-wrap items-center justify-between w-full gap-3 py-1 bg-amber-50/80 border border-amber-200 rounded-lg px-4 py-3">
+              <div className="flex items-center gap-2 text-xs font-semibold text-amber-900">
+                <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>{t.previewModeBanner} &bull; {t.previewModeReadOnlyHint}</span>
+              </div>
+              <span className="text-[11px] text-amber-700 font-mono">
+                {isRtl ? 'حماية تامة: استجابة واجهة المستخدم فقط (0 طلبات لقاعدة البيانات أو SAP)' : 'Zero DB/SAP Mutations • Pure React State'}
+              </span>
+            </div>
+          ) : (
+            <>
               <button
                 type="button"
-                onClick={onCancel}
-                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800"
+                onClick={() => {
+                  const reset: Record<string, any> = {};
+                  template.fields.forEach((f) => (reset[f.name] = f.defaultValue ?? ''));
+                  setFormData(reset);
+                  setErrors({});
+                  setSubmitFeedback(null);
+                }}
+                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
-                {t.cancelBtn}
+                <RotateCcw className="w-4 h-4" />
+                {t.resetForm}
               </button>
-            )}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-lg shadow-sm transition-colors flex items-center gap-2 disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" />
-              {isSubmitting ? t.persistingBtn : t.submitEntryBtn}
-            </button>
-          </div>
+
+              <div className="flex items-center gap-3">
+                {onCancel && (
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 cursor-pointer"
+                  >
+                    {t.cancelBtn}
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-lg shadow-sm transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  {isSubmitting ? t.persistingBtn : t.submitEntryBtn}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </form>
 
-      {/* Real-time JSONB Payload Inspector */}
-      <div className="px-6 py-4 bg-slate-900 text-slate-200 border-t border-slate-800">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>{t.jsonbInspectorTitle} <code className="text-indigo-300">entity_records.data</code></span>
+      {/* Real-time JSONB Payload Inspector - Hidden during Client Preview Mode */}
+      {!isPreviewMode && (
+        <div className="px-6 py-4 bg-slate-900 text-slate-200 border-t border-slate-800">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>{t.jsonbInspectorTitle} <code className="text-indigo-300">entity_records.data</code></span>
+            </div>
+            <span className="text-[11px] text-slate-500 font-mono">{t.ginIndexed}</span>
           </div>
-          <span className="text-[11px] text-slate-500 font-mono">{t.ginIndexed}</span>
+          <pre className="text-xs font-mono bg-slate-950 p-3 rounded-lg overflow-x-auto text-emerald-400 max-h-48 border border-slate-800 dir-ltr text-left">
+            {JSON.stringify(formData, null, 2)}
+          </pre>
         </div>
-        <pre className="text-xs font-mono bg-slate-950 p-3 rounded-lg overflow-x-auto text-emerald-400 max-h-48 border border-slate-800 dir-ltr text-left">
-          {JSON.stringify(formData, null, 2)}
-        </pre>
-      </div>
+      )}
     </div>
   );
 };

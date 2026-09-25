@@ -1,0 +1,94 @@
+# ==============================================================================
+# EZWATY ERP (عزوتي) - ON-PREMISE PRODUCTION DOCKER-COMPOSE
+# Designed for Turnkey Local Server Installation & Air-Gapped / Private Deployments
+# ==============================================================================
+
+version: '3.9'
+
+networks:
+  ezwaty-network:
+    driver: bridge
+
+volumes:
+  ezwaty-postgres-data:
+    driver: local
+  ezwaty-uploads-data:
+    driver: local
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL 16 Relational & JSONB Database Engine
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: ezwaty-erp-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ezwaty_erp_db}
+      POSTGRES_USER: ${POSTGRES_USER:-ezwaty_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeMeSecurely2026!}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ezwaty-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_LOCAL_PORT:-5432}:5432"
+    networks:
+      - ezwaty-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ezwaty_admin} -d ${POSTGRES_DB:-ezwaty_erp_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ----------------------------------------------------------------------------
+  # 2. EZWATY ERP Full-Stack Application (Node.js API + React Frontend)
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ezwaty-erp:latest
+    container_name: ezwaty-erp-core
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      
+      # HYBRID DEPLOYMENT SWITCH: 'ON_PREMISE' vs 'CLOUD'
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-ON_PREMISE}
+      
+      # Fixed Tenant UUID for Local On-Premise Single-Tenant Database Queries
+      LOCAL_TENANT_ID: ${LOCAL_TENANT_ID:-00000000-0000-0000-0000-000000000001}
+      LOCAL_TENANT_NAME: "${LOCAL_TENANT_NAME:-Al-Amal Enterprise Local}"
+      
+      # Cryptographic Offline / Online License Key for On-Premise Validation
+      ON_PREMISE_LICENSE_KEY: ${ON_PREMISE_LICENSE_KEY:-EZWATY-ENT-2026-X992-LIVE}
+      LICENSE_PUBLIC_KEY: ${LICENSE_PUBLIC_KEY:-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...}
+      
+      # Database Connection Strings
+      DATABASE_URL: postgres://${POSTGRES_USER:-ezwaty_admin}:${POSTGRES_PASSWORD:-ChangeMeSecurely2026!}@postgres:5432/${POSTGRES_DB:-ezwaty_erp_db}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-ezwaty_erp_db}
+      DATABASE_USER: ${POSTGRES_USER:-ezwaty_admin}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-ChangeMeSecurely2026!}
+
+      # Authentication Secrets
+      JWT_SECRET: ${JWT_SECRET:-EzwatySuperSecretOnPremiseKey2026!}
+      JWT_EXPIRY: ${JWT_EXPIRY:-12h}
+    volumes:
+      - ezwaty-uploads-data:/app/uploads
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    networks:
+      - ezwaty-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

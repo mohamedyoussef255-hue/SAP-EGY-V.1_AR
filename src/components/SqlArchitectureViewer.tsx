@@ -14,7 +14,7 @@ export const SqlArchitectureViewer: React.FC = () => {
   };
 
   const CORE_SCHEMA_SQL = `-- ============================================================================
--- MINHAJ ENTERPRISE MODULAR CLOUD ERP: CORE MULTI-TENANT ARCHITECTURE
+-- EZWATY ERP (عزوتي) ENTERPRISE MODULAR CLOUD & ON-PREMISE ARCHITECTURE
 -- Engine: PostgreSQL 15+ with Row-Level Security & GIN JSONB Extensions
 -- ============================================================================
 

@@ -18,6 +18,7 @@ interface TenantSubscriptionManagerProps {
   onSelectTenant: (tenant: Tenant) => void;
   onUpdateTenantModules: (tenantId: string, modules: Record<ModuleType, boolean>) => void;
   onUpdateTenantTier: (tenantId: string, tier: PlanTier) => void;
+  deploymentMode?: 'CLOUD' | 'ON_PREMISE';
 }
 
 export const TenantSubscriptionManager: React.FC<TenantSubscriptionManagerProps> = ({
@@ -26,8 +27,10 @@ export const TenantSubscriptionManager: React.FC<TenantSubscriptionManagerProps>
   onSelectTenant,
   onUpdateTenantModules,
   onUpdateTenantTier,
+  deploymentMode = 'CLOUD',
 }) => {
   const { t, isRtl } = useLanguage();
+  const isOnPremise = deploymentMode === 'ON_PREMISE';
   const [simulationResponse, setSimulationResponse] = useState<{
     status: number;
     message: string;
@@ -96,24 +99,42 @@ export const TenantSubscriptionManager: React.FC<TenantSubscriptionManagerProps>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-slate-500">{t.currentEnterpriseTenant}</span>
-          <select
-            value={activeTenant.id}
-            onChange={(e) => {
-              const selected = tenants.find((item) => item.id === e.target.value);
-              if (selected) onSelectTenant(selected);
-              setSimulationResponse(null);
-            }}
-            className="px-3.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg font-bold text-slate-800"
-          >
-            {tenants.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name} &bull; [{item.tier.toUpperCase()}]
-              </option>
-            ))}
-          </select>
+          {isOnPremise ? (
+            <div className="px-3 py-1.5 bg-amber-50 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+              <span>{isRtl ? 'خادم محلي منفرد: ' : 'Local Server: '}{activeTenant.name}</span>
+            </div>
+          ) : (
+            <>
+              <span className="text-xs font-medium text-slate-500">{t.currentEnterpriseTenant}</span>
+              <select
+                value={activeTenant.id}
+                onChange={(e) => {
+                  const selected = tenants.find((item) => item.id === e.target.value);
+                  if (selected) onSelectTenant(selected);
+                  setSimulationResponse(null);
+                }}
+                className="px-3.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg font-bold text-slate-800"
+              >
+                {tenants.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} &bull; [{item.tier.toUpperCase()}]
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
         </div>
       </div>
+
+      {isOnPremise && (
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center justify-between">
+          <span>{t.onPremiseActiveBanner}</span>
+          <span className="font-mono text-[11px] bg-amber-200/70 px-2 py-0.5 rounded text-amber-900 font-bold">
+            Air-Gapped Local Execution
+          </span>
+        </div>
+      )}
 
       {/* Tenant Details & Quota Gauges */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -121,11 +142,13 @@ export const TenantSubscriptionManager: React.FC<TenantSubscriptionManagerProps>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase text-slate-500">{t.subTier}</span>
             <span
-              className={`px-2.5 py-0.5 text-xs font-bold rounded-full border ${getTierColor(
-                activeTenant.tier
-              )}`}
+              className={`px-2.5 py-0.5 text-xs font-bold rounded-full border ${
+                isOnPremise
+                  ? 'bg-amber-100 text-amber-900 border-amber-300'
+                  : getTierColor(activeTenant.tier)
+              }`}
             >
-              {activeTenant.tier.toUpperCase()}
+              {isOnPremise ? 'ENTERPRISE ON-PREMISE' : activeTenant.tier.toUpperCase()}
             </span>
           </div>
 
@@ -136,24 +159,31 @@ export const TenantSubscriptionManager: React.FC<TenantSubscriptionManagerProps>
 
           <div className="pt-2 border-t border-slate-100 flex items-center gap-2 text-xs text-emerald-700">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{t.footerSharedDb}</span>
+            <span>{isOnPremise ? (isRtl ? 'ترخيص الخادم مفعل ومطابق محلياً' : 'Local Server License Cryptographically Active') : t.footerSharedDb}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 pt-2">
-            {(['freemium', 'growth', 'enterprise'] as PlanTier[]).map((tier) => (
-              <button
-                key={tier}
-                onClick={() => onUpdateTenantTier(activeTenant.id, tier)}
-                className={`px-2.5 py-1 text-[11px] font-semibold rounded capitalize transition-colors ${
-                  activeTenant.tier === tier
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {tier}
-              </button>
-            ))}
-          </div>
+          {/* Tier change quick buttons - Hidden in On-Premise mode */}
+          {!isOnPremise ? (
+            <div className="flex items-center gap-1.5 pt-2">
+              {(['freemium', 'growth', 'enterprise'] as PlanTier[]).map((tier) => (
+                <button
+                  key={tier}
+                  onClick={() => onUpdateTenantTier(activeTenant.id, tier)}
+                  className={`px-2.5 py-1 text-[11px] font-semibold rounded capitalize transition-colors ${
+                    activeTenant.tier === tier
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {tier}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="pt-1 text-[11px] text-slate-500 italic">
+              {isRtl ? 'باقة خادم الشركات المحلي: بدون قيود سحابية' : 'Enterprise On-Premise License: No cloud limits'}
+            </div>
+          )}
         </div>
 
         {/* Storage Quota Gauge */}

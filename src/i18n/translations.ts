@@ -14,8 +14,42 @@ export interface Translations {
   navWorkflows: string;
   navSql: string;
   navBackend: string;
+  navHybrid: string;
   pendingBadge: string;
   formsBadge: string;
+
+  // Hybrid Deployment & Docker
+  hybridTitle: string;
+  hybridSub: string;
+  deploymentModeLabel: string;
+  modeCloud: string;
+  modeOnPremise: string;
+  modeCloudDesc: string;
+  modeOnPremiseDesc: string;
+  licenseCardTitle: string;
+  licenseValid: string;
+  licenseExpired: string;
+  licenseCompany: string;
+  licenseExpiryDate: string;
+  licenseKeyInput: string;
+  validateLicenseBtn: string;
+  dockerTabCompose: string;
+  dockerTabDockerfile: string;
+  dockerTabMiddleware: string;
+  dockerTabHrSap: string;
+  onPremiseActiveBanner: string;
+  onPremiseSwitchNotice: string;
+  copyDockerBtn: string;
+  copiedDockerBtn: string;
+  singleTenantLocalNotice: string;
+
+  // Client Preview Mode (Easter Egg)
+  previewModeBanner: string;
+  previewModeActive: string;
+  previewModeDesc: string;
+  previewModeExitBtn: string;
+  previewModeReadOnlyHint: string;
+  secretClickHint: string;
 
   // Footer
   footerTitle: string;
@@ -183,8 +217,8 @@ export interface Translations {
 
 export const translations: Record<Language, Translations> = {
   ar: {
-    appName: 'منهاج كلاود ERP',
-    appSub: 'بنية سحابية متعددة المستأجرين • محرك نماذج JSONB ديناميكي',
+    appName: 'عزوتي - EZWATY ERP',
+    appSub: 'بنية سحابية ومحلية هجينة • محرك نماذج JSONB ديناميكي',
     activeTenant: 'المستأجر النشط:',
     rlsActive: 'أمان RLS مفعل',
     langToggle: 'English',
@@ -196,11 +230,45 @@ export const translations: Record<Language, Translations> = {
     navWorkflows: 'سير العمل والمهام',
     navSql: 'بنية قواعد بيانات PostgreSQL',
     navBackend: 'منطق الواجهة الخلفية و Express API',
+    navHybrid: 'الاستضافة الهجينة و Docker',
     pendingBadge: 'معلق',
     formsBadge: 'نماذج',
 
+    // Hybrid Deployment & Docker
+    hybridTitle: 'إعدادات الاستضافة الهجينة وحاويات Docker',
+    hybridSub: 'التبديل بين النمط السحابي متعدد المستأجرين (Cloud Multi-Tenant) والنمط المحلي لمستأجر واحد (On-Premise Single-Tenant) بنفس الكود البرمجي',
+    deploymentModeLabel: 'نمط الاستضافة النشط (DEPLOYMENT_MODE):',
+    modeCloud: 'سحابي متعدد المستأجرين (Cloud SaaS)',
+    modeOnPremise: 'محلي خادم منفرد (On-Premise Server)',
+    modeCloudDesc: 'عزل صارم للبيانات عبر معرّف المستأجر (tenant_id) وسياسات أمان PostgreSQL RLS واشتراكات مجزأة.',
+    modeOnPremiseDesc: 'تنفيذ محلي فائق السرعة، تجاوز فحوصات المستأجرين، تحويل الاستعلامات للمستأجر المحلي، وفحص مفتاح الترخيص المشفر.',
+    licenseCardTitle: 'حالة ترخيص الخادم المحلي (On-Premise License)',
+    licenseValid: 'الترخيص سارٍ ومعتمد محلياً',
+    licenseExpired: 'الترخيص منتهي الصلاحية أو غير صالح',
+    licenseCompany: 'الجهة المرخص لها:',
+    licenseExpiryDate: 'تاريخ انتهاء الترخيص:',
+    licenseKeyInput: 'مفتاح الترخيص المشفر (License Key):',
+    validateLicenseBtn: 'التحقق من صحة الترخيص',
+    dockerTabCompose: 'ملف docker-compose.yml',
+    dockerTabDockerfile: 'ملف Dockerfile',
+    dockerTabMiddleware: 'وسيط Express الهجين',
+    dockerTabHrSap: 'تكييف HR & SAP مع النمطين',
+    onPremiseActiveBanner: 'أنت الآن تعمل في نمط الخادم المحلي (On-Premise). تم تحويل كافة الاستعلامات للمستأجر المنفرد وتفعيل وسيط التراخيص.',
+    onPremiseSwitchNotice: 'تم إخفاء أزرار ترقية الباقة السحابية وتبديل المستأجرين لتوافق بيئة الخادم المحلي المستقل.',
+    copyDockerBtn: 'نسخ إعدادات Docker',
+    copiedDockerBtn: 'تم نسخ كود Docker!',
+    singleTenantLocalNotice: 'مستأجر محلي منفرد (ID: 00000000-0000-0000-0000-000000000001)',
+
+    // Client Preview Mode (Easter Egg)
+    previewModeBanner: 'نمط معاينة العميل نشط (للقراءة فقط)',
+    previewModeActive: 'معاينة تجربة الموظف / العميل',
+    previewModeDesc: 'تم إخفاء أدوات الإدارة، مخططات JSONB، وقوائم التعديل بالكامل. الحقول للقراءة فقط دون إمكانية إرسال أو تعديل البيانات.',
+    previewModeExitBtn: 'الخروج من نمط المعاينة',
+    previewModeReadOnlyHint: 'هذا الحقل للعرض فقط في نمط المعاينة الآمنة',
+    secretClickHint: 'انقر 5 مرات متتالية على الشعار للتبديل السريع لنمط معاينة العميل (Easter Egg)',
+
     // Footer
-    footerTitle: 'نظام منهاج السحابي لإدارة الموارد المؤسسية (Minhaj ERP)',
+    footerTitle: 'نظام عزوتي لإدارة الموارد المؤسسية (EZWATY ERP)',
     footerSharedDb: 'قاعدة بيانات مشتركة مع أمان على مستوى الصفوف (RLS)',
     footerJsonb: 'فهرسة سريعة عبر JSONB GIN',
     footerLatency: 'زمن الاستجابة: 1.8 مللي ثانية',
@@ -364,8 +432,8 @@ export const translations: Record<Language, Translations> = {
   },
 
   en: {
-    appName: 'MINHAJ CLOUD ERP',
-    appSub: 'Shared PostgreSQL Multi-Tenancy • Dynamic JSONB Engine',
+    appName: 'عزوتي - EZWATY ERP',
+    appSub: 'Hybrid Cloud & Local On-Premise System • Dynamic JSONB Engine',
     activeTenant: 'Active Tenant:',
     rlsActive: 'RLS Active',
     langToggle: 'العربية',
@@ -377,11 +445,45 @@ export const translations: Record<Language, Translations> = {
     navWorkflows: 'Workflows & Tasks',
     navSql: 'PostgreSQL Architecture',
     navBackend: 'Backend & Express API',
+    navHybrid: 'Hybrid & Docker',
     pendingBadge: 'Pending',
     formsBadge: 'Forms',
 
+    // Hybrid Deployment & Docker
+    hybridTitle: 'Hybrid Deployment & Docker Infrastructure',
+    hybridSub: 'Toggle between Cloud Multi-Tenant SaaS and Single-Tenant On-Premise Local Server using the exact same codebase',
+    deploymentModeLabel: 'Active Deployment Mode (DEPLOYMENT_MODE):',
+    modeCloud: 'Cloud Multi-Tenant SaaS',
+    modeOnPremise: 'On-Premise Single-Tenant Server',
+    modeCloudDesc: 'Strict data isolation via tenant_id, PostgreSQL Row-Level Security (RLS), and a la carte quotas.',
+    modeOnPremiseDesc: 'High-throughput local execution, tenant checks bypassed, queries defaulted to local singleton tenant, cryptographic license enforced.',
+    licenseCardTitle: 'On-Premise Enterprise License Status',
+    licenseValid: 'License Active & Cryptographically Verified',
+    licenseExpired: 'License Expired or Invalid Signature',
+    licenseCompany: 'Licensed Organization:',
+    licenseExpiryDate: 'Subscription Expiry Date:',
+    licenseKeyInput: 'Cryptographic License Key (Offline/Online):',
+    validateLicenseBtn: 'Verify License Key',
+    dockerTabCompose: 'docker-compose.yml',
+    dockerTabDockerfile: 'Dockerfile',
+    dockerTabMiddleware: 'Hybrid Express Middleware',
+    dockerTabHrSap: 'HR & SAP Database Adaptability',
+    onPremiseActiveBanner: 'Operating in Single-Tenant On-Premise mode. Multi-tenant checks are bypassed and all data maps to the local enterprise server.',
+    onPremiseSwitchNotice: 'Cloud tier upgrade buttons and cross-tenant switchers are suppressed for on-premise compliance.',
+    copyDockerBtn: 'Copy Docker Config',
+    copiedDockerBtn: 'Copied Docker Config!',
+    singleTenantLocalNotice: 'Single Local Server Tenant (ID: 00000000-0000-0000-0000-000000000001)',
+
+    // Client Preview Mode (Easter Egg)
+    previewModeBanner: 'Preview Mode Active - Read Only',
+    previewModeActive: 'Client / Employee Experience Preview',
+    previewModeDesc: 'All admin configuration panels, JSONB schema builders, and save buttons are hidden. Form fields are read-only with zero mutation risk.',
+    previewModeExitBtn: 'Exit Preview Mode',
+    previewModeReadOnlyHint: 'This field is locked in read-only client preview mode',
+    secretClickHint: 'Secret Easter Egg: Click application logo 5 times within 2 seconds to toggle Client Preview Mode',
+
     // Footer
-    footerTitle: 'Minhaj Enterprise Cloud ERP',
+    footerTitle: 'EZWATY ERP - Enterprise System (عزوتي)',
     footerSharedDb: 'Shared Database with Row-Level Security (RLS)',
     footerJsonb: 'Fast indexing with PostgreSQL JSONB GIN',
     footerLatency: 'Database Latency: 1.8ms',
